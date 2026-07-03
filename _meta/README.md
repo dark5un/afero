@@ -20,4 +20,4 @@ _meta/
 | 1 | #270: MemMapFs.Create auto-creates parent dirs | Tech debt fix | `fix/memmapfs-create-consistency` | Done |
 | 2 | #327: MemMapFs.Rename mutates open file handles | Tech debt fix | `fix/memmapfs-rename-consistency` | Done |
 
-For the full methodology, see `skill_view(name='codebase-reconnaissance')` and `skill_view(name='story-composer')`.
+For the full methodology, see the Hermes skills `codebase-reconnaissance` and `story-composer`.
