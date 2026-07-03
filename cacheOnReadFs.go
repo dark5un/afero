@@ -2,6 +2,7 @@ package afero
 
 import (
 	"os"
+	"path/filepath"
 	"syscall"
 	"time"
 )
@@ -304,10 +305,15 @@ func (u *CacheOnReadFs) Create(name string) (File, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	dir := filepath.Dir(name)
+	if err = u.layer.MkdirAll(dir, 0o777); err != nil {
+		bfh.Close()
+		return nil, err
+	}
+
 	lfh, err := u.layer.Create(name)
 	if err != nil {
-		// oops, see comment about OS_TRUNC above, should we remove? then we have to
-		// remember if the file did not exist before
 		bfh.Close()
 		return nil, err
 	}

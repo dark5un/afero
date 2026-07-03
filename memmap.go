@@ -55,6 +55,22 @@ func (*MemMapFs) Name() string { return "MemMapFS" }
 
 func (m *MemMapFs) Create(name string) (File, error) {
 	name = normalizePath(name)
+	parent := filepath.Dir(name)
+	if parent != FilePathSeparator {
+		m.mu.Lock()
+		_, err := m.lockfreeOpen(parent)
+		if err != nil {
+			m.mu.Unlock()
+			return nil, &os.PathError{Op: "create", Path: name, Err: os.ErrNotExist}
+		}
+		file := mem.CreateFile(name)
+		mem.SetMode(file, 0o666)
+		m.getData()[name] = file
+		m.registerWithParent(file, 0)
+		m.mu.Unlock()
+		return mem.NewFileHandle(file), nil
+	}
+
 	m.mu.Lock()
 	file := mem.CreateFile(name)
 	mem.SetMode(file, 0o666)

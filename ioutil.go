@@ -182,6 +182,9 @@ func TempFile(fs Fs, dir, pattern string) (f File, err error) {
 	if dir == "" {
 		dir = os.TempDir()
 	}
+	if err := fs.MkdirAll(dir, 0o777); err != nil {
+		return nil, err
+	}
 
 	var prefix, suffix string
 	if pos := strings.LastIndex(pattern, "*"); pos != -1 {
@@ -224,6 +227,9 @@ func TempDir(fs Fs, dir, prefix string) (name string, err error) {
 	}
 	if dir == "" {
 		dir = os.TempDir()
+	}
+	if err := fs.MkdirAll(dir, 0o777); err != nil {
+		return "", err
 	}
 
 	nconflict := 0

@@ -1125,3 +1125,28 @@ func TestMemMapFsPermissionChecks(t *testing.T) {
 		t.Fatalf("expected permission error, got: %v", err)
 	}
 }
+
+func TestMemFsCreateWithoutParentDir(t *testing.T) {
+	t.Parallel()
+
+	fs := NewMemMapFs()
+
+	// Attempt to Create a file in a directory that does not exist.
+	// This must fail with an ErrNotExist / PathError, matching OsFs.Create behavior.
+	_, err := fs.Create("/nonexistent-dir/file.txt")
+	if err == nil {
+		t.Fatal("Create: expected error when parent directory does not exist")
+	}
+	if !os.IsNotExist(err) {
+		t.Fatalf("Create: expected os.IsNotExist(err) true, got: %T %v", err, err)
+	}
+
+	// Same for OpenFile with O_CREATE.
+	_, err = fs.OpenFile("/nonexistent-dir/file.txt", os.O_RDWR|os.O_CREATE, 0o666)
+	if err == nil {
+		t.Fatal("OpenFile: expected error when parent directory does not exist")
+	}
+	if !os.IsNotExist(err) {
+		t.Fatalf("OpenFile: expected os.IsNotExist(err) true, got: %T %v", err, err)
+	}
+}
